@@ -1,0 +1,76 @@
+<%- include('partials/header'); -%>
+    <div>
+        <h3>Carga Producto</h3>
+        <form 
+        action="/api/productos" 
+        method="post" 
+        enctype="multipart/form-data">
+
+        <form>
+        <div class="form-group">
+            <label for="title">Nombre*</label>
+            <input name="title" type="text" class="form-control" id="title" placeholder="Nombre del Producto">
+        </div>
+        <div class="form-group">
+            <label for="price">Precio*</label>
+            <input name="price" type="text" class="form-control" id="price" placeholder="Precio del Producto">
+        </div>
+        <div class="form-group">
+            <input type="file" class="form-group-file" name="thumbail" id="file">
+        </div>
+          <button type="submit" class="btn btn-dark">Crear</button>
+        </form>
+        <br>
+
+        <!-- No está funcionando el fetch
+        <div id="contenido">
+        </div>
+        <script src="/scripts/fetch.js"></script> -->
+        <div id="contenido">
+            <% if (list.length == 0) {%>
+                <h2>No hay productos.</h2>
+            <% } else { %>
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th scope="col"><b>Nombre</b></th>
+                            <th scope="col"><b>Precio</b></th>
+                            <th scope="col"><b>Imagen</b></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% list.forEach((products) => { %>
+                        <tr>
+                            <th scope="row"><%= products.name %></td>
+                            <td><%= products.price %></td>
+                            <td><img src="<%= products.image %>" width="100px;"></td>
+                        </tr>
+                    <% }) %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+
+        <div>
+            <h2>Centro de mensajes</h2>
+            <br/>
+            <div id="chat">
+            </div>
+            <br/>
+            <form onsubmit="return addMessage(this)">
+                <input type="email" id="email" placeholder="email@dominio.com"/><br/>
+                <input type="text" id="avatar" placeholder="imagen"/><br/>
+                <input type="text" id="name" placeholder="Nombre"/><br/>
+                <input type="text" id="lastname" placeholder="Nombre"/><br/>
+                <input type="text" id="msn" placeholder="Ingrese su mensaje" /><br/>
+                <input type="text" id="age" placeholder="Ingrese edad"/><br/>
+                <input type="text" id="nickname" placeholder="Ingrese su nick"/><br/>
+                <input type="submit" id="btn" value="Enviar!"/><br/>
+              </form>
+            <br/>
+            
+            <!--<script src="../server/socketio.js"></script>-->
+            <script type="module" src="/scripts/socket.js"></script>
+        </div>
+    </div>
+<%- include('partials/footer'); -%>
