@@ -39,8 +39,10 @@ class ContenedorMongoDb {
 
     async listAll() {
         try {
+            console.log(`----------Listing all documents from ${this.coleccion.modelName}-----`)
+            //obtener todos los documentos de la coleccion en mongo
             let docs = await this.coleccion.find({}, { __v: 0 }).lean()
-            //console.log(docs)
+            //convertir los documentos a objetos
             docs = docs.map(asPOJO)
             docs = docs.map(d => renameField(d, '_id', 'id'))
             return docs
@@ -51,6 +53,11 @@ class ContenedorMongoDb {
 
     async save(nuevoElem) {
         try {
+            console.log("Trying save" + JSON.stringify(nuevoElem))
+            let now = { date: new Date().toLocaleTimeString()};
+            nuevoElem = { ...nuevoElem, now }  
+            console.log("Trying save added date" + JSON.stringify(nuevoElem))
+
             let doc = await this.coleccion.create(nuevoElem);
             doc = asPOJO(doc)
             renameField(doc, '_id', 'id')

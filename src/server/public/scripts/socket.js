@@ -1,31 +1,27 @@
 const socket = io("localhost:3000");
-const desnormalize = require('normalizr').denormalize;
-/**/
-//schema message
-const authorSchemaNormalizr = new schema.Entity('authors', {
-    email: {type: String,required: true},
-    name: {type: String, required: true},
-    lastname: {type: String, required: true},
-    age: {type: Number, required: true},
-    nickname: {type: String, required: true},
-    avatar: {type: String, required: true}
-}, {idAttribute: 'email'});
-const messageSchemaNormalizr = new schema.Entity('message', {
-    message: {type: String,required: true},
-    date: {type: Date, default: Date.now}
-}, {idAttribute: 'message'});
-const authorMessagesSchemaNormalizr = new schema.Entity('authorMessages', {
-    author: authorSchemaNormalizr,
-    message: [messageSchemaNormalizr]} , {idAttribute: 'author'});
+const { schema } = normalizr;
 
-// Escuchando el evento 'diego'
+//schema message
+const userSchemaNormalizr = new schema.Entity('users', {}, { idAttribute: 'email' });
+const messageSchemaNormalizr = new schema.Entity('messages', {user: userSchemaNormalizr})
+
+// Escuchando el evento 'message' del servidor
 socket.on("message", data => {
-    data = desnormalize(data.result, authorMessagesSchemaNormalizr, data.entities)
-    console.log("cliente socket: ", JSON.stringify(data));
-    console.log("nickname: ", data.author.nickname);
-    data= `<br/> <span style="color:blue;font-weight:bold"> ${data.author.nickname} </span> - <span style="color:darkolivegreen;font-weight:bold"> ${data.date} </span> - <span style="color:black;font-weight:bold"> ${data.message}</span>`;
-    console.log(data)
+    console.log("Socket script -- Normalizado: ", JSON.stringify(data));
+
+    
+    // denormalizar data
+    let denormalizedData = normalizr.denormalize(data.result, [messageSchemaNormalizr], data.entities);
+    //console.log("Socket script -- Denormalizada: ", JSON.stringify(denormalizedData).length);
+    console.log(denormalizedData)
+    let compresion = Math.trunc((JSON.stringify(denormalizedData).length/JSON.stringify(data).length) * 100);
+    $("#compresiondiv").html(`<p><b>Compresión de mensajes:</b> <b>${compresion} %</b></p>`)
+    for (let i = 0; i < denormalizedData.length; i++) {
+    data= `<br/> <span style="color:blue;font-weight:bold"> ${denormalizedData[i].user.nickname} </span>
+     - <span style="color:darkolivegreen;font-weight:bold"> ${denormalizedData[i].date} </span> - 
+     <span style="color:black;font-weight:bold"> ${denormalizedData[i].message}</span>`;
     $("#chat").append(data)
+    }
 })
 
 
@@ -41,11 +37,11 @@ function emitir() {
     message = $("#msn")[0].value;
     email = $("#email").val();
     let msn = {
-        author: { email: email, name: name, lastname: lastname, avatar: avatar, age: age, nickname: nickname },
-        date: new Date().toLocaleDateString("es-ES"),
+        user: { email: email, name: name, lastname: lastname, avatar: avatar, age: Number(age), nickname: nickname },
         message: $("#msn")[0].value,
     }
-
+    console.log("Enviando mensaje al servidor: ", JSON.stringify(msn));
     socket.emit("message", msn);
     $("#msn")[0].value = "";
 }
+

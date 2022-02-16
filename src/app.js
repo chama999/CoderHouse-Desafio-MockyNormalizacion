@@ -2,9 +2,10 @@ import app from './server/server.js'
 import config from './config/config.js'
 import { Server as io } from 'socket.io'
 import ContenedorMongoDb from './server/db.js'
-//import normalizr from 'normalizr'
-//import { messageSchemaNormalizr } from './models/messageSchema.js'
-//const normalize = normalizr.normalize
+import normalizr from 'normalizr'
+import { messageSchemaNormalizr, userSchemaNormalizr } from './models/messageSchema.js'
+import util from 'util'
+const normalize = normalizr.normalize
 
 
 const server = app.listen(config.env.PORT, () => {
@@ -18,9 +19,11 @@ const server = app.listen(config.env.PORT, () => {
         let messageDisplay = messages.listAll()
             .then(data => {
                 //data normalizada
-                console.log(data.length)
-                let normalizedData = normalize(data, messageSchemaNormalizr)
-                console.log(normalizedData.length)
+                console.log("data sin normalizar: " + JSON.stringify(data).length)
+                console.log("data sin normalizar: " + JSON.stringify(data))
+
+                let normalizedData = normalize(data, [messageSchemaNormalizr])
+                console.log(util.inspect(normalizedData, { showHidden: true, depth: 12 }))
                 chat.sockets.emit('message', normalizedData)
 
                 //data sin normalizar
@@ -34,14 +37,24 @@ const server = app.listen(config.env.PORT, () => {
         console.log("--------------------------")
         console.log(`[${now}] Se abrió una nueva conexión !!`)
         console.log(`Se abrió una nueva conexión !!`)
-        socket.emit('message', {
-            author: {
-            nickname: "admin",
-            email: "admin@admin.com"
-            },
+        let welcomeMsg=[{
+            user: {
+                email: "admin@admin.com",
+                name: "admin",
+                lastname: "admin",
+                avatar: "avatar-admin",
+                age: "99",
+                nickname: "admin"
+            }, 
+            id: "1",
             message: "Bienvenido al chat",
-            date: now
-        })
+            date: new Date().toLocaleTimeString()}]
+
+        console.log("data sin normalizar: " + JSON.stringify(welcomeMsg).length)
+        let normalizedData = normalize(welcomeMsg, [messageSchemaNormalizr])
+        console.log("data normalizada: " + util.inspect(normalizedData, { showHidden: true, depth: 12 }))
+        console.log("data normalizada lenght: " + JSON.stringify(normalizedData).length)
+        socket.emit('message', normalizedData)
         
         // Cada vez que llega un mensaje al evento 'message'
         socket.on("message", data => {

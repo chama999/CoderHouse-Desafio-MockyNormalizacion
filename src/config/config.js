@@ -28,7 +28,7 @@ export default {
             "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-x52bb%40ecommerce-8f711.iam.gserviceaccount.com"
     },
     mongodb:{
-        cnxStr: 'mongodb://localhost:27017/ecommerce',
+        cnxStr: 'mongodb+srv://admin:Ab61WMIpe5AFYED6@cluster0.zqyx5.mongodb.net/ecommerce?retryWrites=true&w=majority',
         options: {
             useNewUrlParser: true,
             useUnifiedTopology: true,
